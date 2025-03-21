@@ -1,12 +1,14 @@
 package com.carlospolo.melichallenge.data.repository
 
-import com.carlospolo.melichallenge.BuildConfig
-import com.carlospolo.melichallenge.mock.MOCK_GET_ITEMS_ENTITY
-import com.carlospolo.melichallenge.mock.MOCK_ITEM_DETAIL_ENTITY
-import com.carlospolo.melichallenge.data.network.remote.ProductsApiService
+import com.carlospolo.melichallenge.data.repository.strategy.CacheFetchStrategy
+import com.carlospolo.melichallenge.data.repository.strategy.ProductRepositoryStrategy
+import com.carlospolo.melichallenge.data.repository.strategy.RemoteFetchStrategy
+import com.carlospolo.melichallenge.mock.MOCK_PRODUCT_DETAIL_MODEL
+import com.carlospolo.melichallenge.mock.MOCK_PRODUCT_ITEM_MODEL_LIST
 import com.carlospolo.melichallenge.utils.MeliResult
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
+import org.junit.After
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
@@ -21,23 +23,33 @@ import org.mockito.junit.MockitoJUnitRunner
 class ProductsRepositoryImplTest {
 
     @Mock
-    private lateinit var productsApiService: ProductsApiService
+    private lateinit var remoteFetchStrategy: RemoteFetchStrategy
 
+    @Mock
+    private lateinit var cacheFetchStrategy: CacheFetchStrategy
+
+    private lateinit var strategyContext: ProductRepositoryStrategy
     private lateinit var repository: ProductsRepositoryImpl
     private lateinit var closeable: AutoCloseable
 
     @Before
     fun setUp() {
         closeable = MockitoAnnotations.openMocks(this)
-        repository = ProductsRepositoryImpl(productsApiService)
+        strategyContext = ProductRepositoryStrategy(remoteFetchStrategy, cacheFetchStrategy)
+        repository = ProductsRepositoryImpl(strategyContext)
+    }
+
+    @After
+    fun tearDown() {
+        closeable.close()
     }
 
     @Test
-    fun `getItemsBySearch should return Success when API call is successful`() = runTest {
+    fun `getItemsBySearch should return Success when remote strategy succeeds`() = runTest {
         // Arrange
         val searchQuery = "laptop"
-        `when`(productsApiService.getItemsBySearch(BuildConfig.SITE_ID, searchQuery)).thenReturn(
-            MOCK_GET_ITEMS_ENTITY
+        `when`(remoteFetchStrategy.getItemsBySearch(searchQuery)).thenReturn(
+            MeliResult.Success(MOCK_PRODUCT_ITEM_MODEL_LIST)
         )
 
         // Act
@@ -45,15 +57,17 @@ class ProductsRepositoryImplTest {
 
         // Assert
         assertTrue(result is MeliResult.Success)
-        assertEquals(1, (result as MeliResult.Success).data.size)
-        assertEquals(MOCK_GET_ITEMS_ENTITY.results.first().title, result.data.first().title)
+        assertEquals(2, (result as MeliResult.Success).data.size)
+        assertEquals(MOCK_PRODUCT_ITEM_MODEL_LIST.first().title, result.data.first().title)
     }
 
     @Test
-    fun `getItemsBySearch should return Error when API call fails`() = runTest {
+    fun `getItemsBySearch should return Error when remote strategy fails`() = runTest {
         // Arrange
         val searchQuery = "laptop"
-        `when`(productsApiService.getItemsBySearch(BuildConfig.SITE_ID, searchQuery)).thenThrow(RuntimeException("Network Error"))
+        `when`(remoteFetchStrategy.getItemsBySearch(searchQuery)).thenReturn(
+            MeliResult.Error(RuntimeException("Network Error"))
+        )
 
         // Act
         val result = repository.getItemsBySearch(searchQuery)
@@ -64,24 +78,28 @@ class ProductsRepositoryImplTest {
     }
 
     @Test
-    fun `getDetailItem should return Success when API call is successful`() = runTest {
+    fun `getDetailItem should return Success when remote strategy succeeds`() = runTest {
         // Arrange
         val productId = "123"
-        `when`(productsApiService.getDetailItem(productId)).thenReturn(MOCK_ITEM_DETAIL_ENTITY)
+        `when`(remoteFetchStrategy.getDetailItem(productId)).thenReturn(
+            MeliResult.Success(MOCK_PRODUCT_DETAIL_MODEL)
+        )
 
         // Act
         val result = repository.getDetailItem(productId)
 
         // Assert
         assertTrue(result is MeliResult.Success)
-        assertEquals(MOCK_ITEM_DETAIL_ENTITY.title, (result as MeliResult.Success).data.title)
+        assertEquals(MOCK_PRODUCT_DETAIL_MODEL.title, (result as MeliResult.Success).data.title)
     }
 
     @Test
-    fun `getDetailItem should return Error when API call fails`() = runTest {
+    fun `getDetailItem should return Error when remote strategy fails`() = runTest {
         // Arrange
         val productId = "123"
-        `when`(productsApiService.getDetailItem(productId)).thenThrow(RuntimeException("API Failure"))
+        `when`(remoteFetchStrategy.getDetailItem(productId)).thenReturn(
+            MeliResult.Error(RuntimeException("API Failure"))
+        )
 
         // Act
         val result = repository.getDetailItem(productId)

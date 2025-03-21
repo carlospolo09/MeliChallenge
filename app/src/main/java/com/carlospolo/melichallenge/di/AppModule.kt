@@ -3,6 +3,9 @@ package com.carlospolo.melichallenge.di
 import com.carlospolo.melichallenge.BuildConfig
 import com.carlospolo.melichallenge.data.network.remote.ProductsApiService
 import com.carlospolo.melichallenge.data.repository.ProductsRepositoryImpl
+import com.carlospolo.melichallenge.data.repository.strategy.CacheFetchStrategy
+import com.carlospolo.melichallenge.data.repository.strategy.ProductRepositoryStrategy
+import com.carlospolo.melichallenge.data.repository.strategy.RemoteFetchStrategy
 import com.carlospolo.melichallenge.domain.repository.ProductsRepository
 import com.carlospolo.melichallenge.domain.usecase.GetProductDetailUseCase
 import com.carlospolo.melichallenge.domain.usecase.GetProductsUseCase
@@ -48,15 +51,53 @@ object AppModule {
     }
 
     /**
-     * Provides an implementation of [ProductsRepository].
+     * Provides an instance of [RemoteFetchStrategy] to handle data retrieval from a remote API.
      *
-     * @param productsApiService The API service used to fetch product data.
-     * @return An instance of [ProductsRepository] that interacts with the API.
+     * @param apiService The API service used to fetch product data.
+     * @return An instance of [RemoteFetchStrategy].
      */
     @Provides
-    @Singleton
-    fun provideProductsRepository(productsApiService: ProductsApiService): ProductsRepository {
-        return ProductsRepositoryImpl(productsApiService)
+    fun provideRemoteFetchStrategy(apiService: ProductsApiService): RemoteFetchStrategy {
+        return RemoteFetchStrategy(apiService)
+    }
+
+    /**
+     * Provides an instance of [CacheFetchStrategy] to handle data retrieval from a local cache.
+     * Currently, this strategy is not implemented.
+     *
+     * @return An instance of [CacheFetchStrategy].
+     */
+    @Provides
+    fun provideCacheFetchStrategy(): CacheFetchStrategy {
+        return CacheFetchStrategy()
+    }
+
+    /**
+     * Provides an instance of [ProductRepositoryStrategy] to manage the selection of
+     * data retrieval strategies.
+     *
+     * @param remoteStrategy The strategy for fetching data from a remote source.
+     * @param cacheStrategy The strategy for fetching data from a local cache.
+     * @return An instance of [ProductRepositoryStrategy].
+     */
+    @Provides
+    fun provideStrategyContext(
+        remoteStrategy: RemoteFetchStrategy,
+        cacheStrategy: CacheFetchStrategy
+    ): ProductRepositoryStrategy {
+        return ProductRepositoryStrategy(remoteStrategy, cacheStrategy)
+    }
+
+    /**
+     * Provides an instance of [ProductsRepository] that utilizes a strategy-based approach
+     * for fetching product data.
+     *
+     * @param strategyContext The strategy context that determines the data source.
+     * @return An instance of [ProductsRepositoryImpl].
+     */
+    @Provides
+    fun provideProductsRepository(strategyContext: ProductRepositoryStrategy): ProductsRepository {
+        return ProductsRepositoryImpl(strategyContext)
     }
 
     /**

@@ -1,4 +1,4 @@
-name: Android CI
+name: Android CI/CD
 
 on:
   push:
@@ -13,6 +13,11 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
+
+      - name: Set Version Code and Version Name
+        run: |
+          echo "VERSION_CODE=$GITHUB_RUN_NUMBER" >> $GITHUB_ENV
+          echo "VERSION_NAME=1.0.$GITHUB_RUN_NUMBER" >> $GITHUB_ENV
 
       - name: Run Lint
         run: ./gradlew lint

@@ -1,12 +1,17 @@
 package com.carlospolo.melichallenge.presentation.ui.productdetail
 
+import android.content.res.Configuration
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
@@ -19,6 +24,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -51,6 +57,7 @@ fun ProductDetailScreen(
     onBack: () -> Unit,
 ) {
     val state by viewModel.uiState.collectAsState()
+    val configuration = LocalConfiguration.current
 
     when (state) {
         is MeliResult.Error -> {
@@ -68,6 +75,7 @@ fun ProductDetailScreen(
             val product = (state as MeliResult.Success).data
             ProductDetail(
                 product = product,
+                isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE,
                 onBack = onBack
             )
         }
@@ -82,102 +90,232 @@ fun ProductDetailScreen(
  * A composable function that displays the product details.
  *
  * @param product The [ProductDetailModel] containing product information.
+ * @param isLandscape A boolean to determine if the screen is in landscape orientation.
  * @param onBack A callback triggered when the user navigates back.
  */
 @Composable
 private fun ProductDetail(
     product: ProductDetailModel,
+    isLandscape: Boolean,
     onBack: () -> Unit,
 ) {
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(MercadoLibreYellow)
-            .verticalScroll(rememberScrollState())
     ) {
         // Top bar
         AppTopBar(onBack = onBack)
 
-        // Main image
-        if (product.imageUrls.isNotEmpty()) {
-            AsyncImage(
-                model = product.imageUrls.first(),
-                contentDescription = product.title,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(300.dp)
-                    .background(Color.White),
-                contentScale = ContentScale.Fit
-            )
+        Box(modifier = Modifier.fillMaxSize()) {
+            if (isLandscape) {
+                LandscapeProductDetail(product = product)
+            } else {
+                PortraitProductDetail(product = product)
+            }
         }
+    }
+}
 
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Product details
+@Composable
+private fun PortraitProductDetail(
+    product: ProductDetailModel,
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+    ) {
         Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .background(Color.White)
-                .padding(16.dp)
+                .fillMaxSize()
         ) {
-            Text(
-                text = product.title,
-                fontSize = 22.sp,
-                fontWeight = FontWeight.Bold
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Text(
-                text = stringResource(id = R.string.product_detail_screen_lbl_condition, product.condition.conditionToSpanish()),
-                fontSize = 14.sp,
-                color = Color.Gray
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Text(
-                text = stringResource(id = R.string.product_detail_screen_lbl_price, product.price),
-                fontSize = 28.sp,
-                fontWeight = FontWeight.Bold,
-                color = MercadoLibreGreen
-            )
-
-            product.originalPrice?.let {
-                if (it.isNotEmpty()) {
-                    Text(
-                        text = stringResource(id = R.string.product_detail_screen_lbl_original_price, it),
-                        fontSize = 16.sp,
-                        color = Color.Gray,
-                        fontWeight = FontWeight.Light
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            product.warranty?.let {
-                if (it.isNotEmpty()) {
-                    Text(
-                        text = stringResource(id = R.string.product_detail_screen_lbl_warranty, it),
-                        fontSize = 14.sp,
-                        color = Color.Gray
-                    )
-                }
+            // Main image
+            if (product.imageUrls.isNotEmpty()) {
+                AsyncImage(
+                    model = product.imageUrls.first(),
+                    contentDescription = product.title,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(300.dp)
+                        .background(Color.White),
+                    contentScale = ContentScale.Fit
+                )
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            Button(
-                onClick = { /* TODO: Abrir enlace del producto */ },
-                modifier = Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(containerColor = MercadoLibreBlue)
+            // Product details
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(Color.White)
+                    .padding(16.dp)
             ) {
                 Text(
-                    text = stringResource(id = R.string.product_detail_screen_btn_show_on_meli),
-                    color = Color.White,
-                    fontSize = 16.sp
+                    text = product.title,
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.Bold
                 )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Text(
+                    text = stringResource(id = R.string.product_detail_screen_lbl_condition, product.condition.conditionToSpanish()),
+                    fontSize = 14.sp,
+                    color = Color.Gray
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Text(
+                    text = stringResource(id = R.string.product_detail_screen_lbl_price, product.price),
+                    fontSize = 28.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MercadoLibreGreen
+                )
+
+                product.originalPrice?.let {
+                    if (it.isNotEmpty()) {
+                        Text(
+                            text = stringResource(id = R.string.product_detail_screen_lbl_original_price, it),
+                            fontSize = 16.sp,
+                            color = Color.Gray,
+                            fontWeight = FontWeight.Light
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                product.warranty?.let {
+                    if (it.isNotEmpty()) {
+                        Text(
+                            text = stringResource(id = R.string.product_detail_screen_lbl_warranty, it),
+                            fontSize = 14.sp,
+                            color = Color.Gray
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Button(
+                    onClick = { /* TODO: Abrir enlace del producto */ },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.buttonColors(containerColor = MercadoLibreBlue)
+                ) {
+                    Text(
+                        text = stringResource(id = R.string.product_detail_screen_btn_show_on_meli),
+                        color = Color.White,
+                        fontSize = 16.sp
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun LandscapeProductDetail(
+    product: ProductDetailModel,
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp)
+        ) {
+            // Column for image
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight()
+            ) {
+                if (product.imageUrls.isNotEmpty()) {
+                    AsyncImage(
+                        model = product.imageUrls.first(),
+                        contentDescription = product.title,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .fillMaxHeight()
+                            .background(Color.White),
+                        contentScale = ContentScale.Fit
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.width(16.dp))
+
+            // Column for product details
+            Column(
+                modifier = Modifier
+                    .weight(1.5f)
+                    .fillMaxHeight()
+            ) {
+                Text(
+                    text = product.title,
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.Bold
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Text(
+                    text = stringResource(id = R.string.product_detail_screen_lbl_condition, product.condition.conditionToSpanish()),
+                    fontSize = 14.sp,
+                    color = Color.Gray
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Text(
+                    text = stringResource(id = R.string.product_detail_screen_lbl_price, product.price),
+                    fontSize = 28.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MercadoLibreGreen
+                )
+
+                product.originalPrice?.let {
+                    if (it.isNotEmpty()) {
+                        Text(
+                            text = stringResource(id = R.string.product_detail_screen_lbl_original_price, it),
+                            fontSize = 16.sp,
+                            color = Color.Gray,
+                            fontWeight = FontWeight.Light
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                product.warranty?.let {
+                    if (it.isNotEmpty()) {
+                        Text(
+                            text = stringResource(id = R.string.product_detail_screen_lbl_warranty, it),
+                            fontSize = 14.sp,
+                            color = Color.Gray
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Button(
+                    onClick = { /* TODO: Abrir enlace del producto */ },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.buttonColors(containerColor = MercadoLibreBlue)
+                ) {
+                    Text(
+                        text = stringResource(id = R.string.product_detail_screen_btn_show_on_meli),
+                        color = Color.White,
+                        fontSize = 16.sp
+                    )
+                }
             }
         }
     }
@@ -185,7 +323,7 @@ private fun ProductDetail(
 
 @Preview
 @Composable
-private fun ProductDetailPreview() {
+private fun ProductDetailPortraitPreview() {
     ProductDetail(
         product = ProductDetailModel(
             title = "Smartphone Android 128GB - Azul",
@@ -198,6 +336,7 @@ private fun ProductDetailPreview() {
             ),
             permalink = "https://www.mercadolibre.com.co/item/ML123456"
         ),
+        isLandscape = false,
         onBack = {}
     )
 }

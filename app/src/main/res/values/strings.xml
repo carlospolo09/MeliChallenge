@@ -1,0 +1,24 @@
+<resources>
+    <string name="app_name">MeliChallenge</string>
+
+    <!-- Searching Screen -->
+    <string name="search_screen_lbl_search_products">Buscar productos…</string>
+    <string name="search_screen_description_search_icon">Buscar</string>
+    <string name="search_screen_lbl_error_message">El campo no puede estar vacío</string>
+    <string name="search_screen_lbl_information_message">Explora productos</string>
+
+    <!-- Product Detail Screen -->
+    <string name="product_detail_screen_lbl_condition">Condición: %s!</string>
+    <string name="product_detail_screen_lbl_price">Precio: %s!</string>
+    <string name="product_detail_screen_lbl_original_price">Precio original: %s!</string>
+    <string name="product_detail_screen_lbl_warranty">Garantía: %s!</string>
+    <string name="product_detail_screen_btn_show_on_meli">Ver en Mercado Libre</string>
+
+    <!-- Error Screen -->
+    <string name="error_screen_lbl_title">Ocurrió un error</string>
+    <string name="error_screen_btn_retry">Reintentar</string>
+    <string name="error_screen_btn_back">Volver</string>
+
+    <!-- Top Bar -->
+    <string name="top_bar_component_description_back_icon">Volver</string>
+</resources>

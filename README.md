@@ -2,10 +2,17 @@
 
 **MeliChallenge** es una aplicación Android que permite buscar productos, listar resultados y ver detalles de productos utilizando la API de MercadoLibre.
 
+## Funcionalidades
+
+- **Conexión con Firebase**: La app está conectada a Firebase para la distribución de versiones a testers y la gestión de datos.
+- **CI/CD con GitHub Actions**: Este proyecto utiliza GitHub Actions para la integración y entrega continua (CI/CD). Con cada push en la rama `develop`, la aplicación se construye y distribuye automáticamente a Firebase.
+
 ## Tecnologías utilizadas
 
 Este proyecto hace uso de varias tecnologías y dependencias que incluyen:
 
+- **Firebase**: Para la distribución de versiones a testers.
+- **GitHub Actions**: Para el proceso automatizado de CI/CD.
 - **Kotlin**: Lenguaje de programación principal.
 - **Jetpack Compose**: Framework para construir interfaces de usuario modernas.
 - **Hilt**: Dependencia para la inyección de dependencias.

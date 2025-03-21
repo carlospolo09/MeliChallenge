@@ -1,0 +1,67 @@
+{
+  "project_info": {
+    "project_number": "809045925819",
+    "project_id": "melichallenge-87fcd",
+    "storage_bucket": "melichallenge-87fcd.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:809045925819:android:1aeba725d2b1dd2034ae9e",
+        "android_client_info": {
+          "package_name": "com.carlospolo.melichallenge"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBt9hUd7OkdKiUIvS70DcScKLCCCmZIU1g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:809045925819:android:2f1fb99d3ca41e0a34ae9e",
+        "android_client_info": {
+          "package_name": "com.carlospolo.melichallenge.production"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBt9hUd7OkdKiUIvS70DcScKLCCCmZIU1g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:809045925819:android:37ac1a153faa260e34ae9e",
+        "android_client_info": {
+          "package_name": "com.carlospolo.melichallenge.staging"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBt9hUd7OkdKiUIvS70DcScKLCCCmZIU1g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

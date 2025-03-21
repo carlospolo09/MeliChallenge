@@ -4,6 +4,7 @@ plugins {
     id("kotlin-kapt")
     id("com.google.dagger.hilt.android")
     kotlin("plugin.serialization") version "1.9.22"
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -106,6 +107,9 @@ dependencies {
     testImplementation("org.junit.vintage:junit-vintage-engine:5.10.0")
     testImplementation("pl.pragmatists:JUnitParams:1.1.1")
     testImplementation("org.assertj:assertj-core:3.24.2")
+
+    implementation(platform("com.google.firebase:firebase-bom:32.0.0"))
+    implementation("com.google.firebase:firebase-analytics-ktx")
 }
 
 kapt {

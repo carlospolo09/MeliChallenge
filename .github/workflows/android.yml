@@ -1,0 +1,48 @@
+name: Android CI
+
+on:
+  push:
+    branches:
+      - develop
+  pull_request:
+    branches:
+      - develop
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      # Configurar el repositorio
+      - name: Check out repository
+        uses: actions/checkout@v3
+
+      # Configurar JDK
+      - name: Set up JDK 8
+        uses: actions/setup-java@v3
+        with:
+          java-version: '8'
+
+      # Configurar Android SDK
+      - name: Set up Android SDK
+        uses: reactivecircus/android-sdk@v2
+        with:
+          api-level: 30
+          build-tools: 30.0.3
+
+      # Dependencias y construcción
+      - name: Cache Gradle dependencies
+        uses: actions/cache@v2
+        with:
+          path: ~/.gradle/caches
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: Build Debug APK
+        run: ./gradlew assembleDebug
+
+      # (Opcional) Ejecutar pruebas
+      - name: Run unit tests
+        run: ./gradlew testDebugUnitTest
+
